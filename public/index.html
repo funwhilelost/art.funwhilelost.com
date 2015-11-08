@@ -64,9 +64,13 @@ var options = {
   "thumbnail": 0 // 0 = off, 1 = 1/8, 2 = 1/4, 3 = 1/2
 }
 
+var $render_target = false;
+
 $(document).ready(function () {
-  var route = window.location.pathname,
-      $render_target = $(".render-target");
+  var route = window.location.pathname;
+
+  $render_target = $(".render-target");
+  window.rendered_art = false;
 
   if((pack = /^\/contents\/(.*)$/.exec(route)) !== null) {
     $.ajax({
@@ -81,10 +85,8 @@ $(document).ready(function () {
       }
     });
   } else if((show = /^\/show\/(.*)$/.exec(route)) !== null) {
-    var controller = AnsiLove.animate(decodeURIComponent(show[1]), function (canvas, sauce) {
-      $render_target.append(canvas);
-      controller.play(14400, function () { $.noop(); });
-    }, options);
+    window.rendered_art = decodeURIComponent(show[1]);
+    animateArt();
   } else {
     $.ajax({
       url: "/list",
@@ -99,6 +101,28 @@ $(document).ready(function () {
     });
   }
 });
+
+function animateArt() {
+  if(window.rendered_art === false) return;
+
+  var controller = AnsiLove.animate(window.rendered_art, function (canvas, sauce) {
+    $render_target.html("").append(canvas);
+    $(document).off("keyup.render");
+
+    controller.play(14400, function () {
+      $(document).on("keyup.render", function () { renderArt(); });
+    });
+  }, options);
+}
+
+function renderArt() {
+  AnsiLove.render(window.rendered_art, function (canvas, sauce) {
+    $render_target.html("").append(canvas);
+  }, options);
+}
+
+// event handlers
+$(document).on("click", "canvas", function () { renderArt(); });
 </script>
 </body>
 </html>
