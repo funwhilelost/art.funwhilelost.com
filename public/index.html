@@ -1,12 +1,15 @@
 <html>
 <head>
-    <link rel="stylesheet" href="stylesheets/site.css"/>
-    <script src="scripts/ansilove.js"></script>
-    <script src="scripts/jquery-1.11.3.min.js"></script>
+    <link rel="stylesheet" href="/stylesheets/site.css"/>
+    <script src="/scripts/ansilove.js"></script>
+    <script src="/scripts/jquery-1.11.3.min.js"></script>
 </head>
 <body>
 <!-- some dummy non-conforming quick dirty html code to test browser-sync. dont't judge me. -->
-<h1>Art Pack Viewer</h1>
+<h1><a href="/">Art Pack Viewer</a></h1>
+<p>
+  Built by <a href="http://www.funwhilelost.com">Andrew Jacobs</a> for <a href="http://websiteconf.neocities.org">Web 1.0 Conference</a>
+</p>
 
 <script>
 // Load an example ACiD binary into the browser.
@@ -53,9 +56,40 @@ var options = {
   "thumbnail": 0 // 0 = off, 1 = 1/8, 2 = 1/4, 3 = 1/2
 }
 
-AnsiLove.render("http://art.funwhilelost.com.s3.amazonaws.com/acdu0692/ACDU0692.NFO", function (canvas, sauce) {
-  document.body.appendChild(canvas);
-}, options);
+$(document).ready(function () {
+  var route = window.location.pathname;
+  console.info(route);
+
+  if((pack = /^\/contents\/(.*)$/.exec(route)) !== null) {
+    $.ajax({
+      url: "/pack/" + decodeURIComponent(pack[1]),
+      success: function (data) {
+        $(data).each(function (idx, el) {
+          $("body").append("<p><a href=\"/show/" + encodeURIComponent(el) + "\">" + (el.split("/").pop()) + "</p>");
+        });
+      },
+      error: function () {
+        console.error("Sad times");
+      }
+    });
+  } else if((show = /^\/show\/(.*)$/.exec(route)) !== null) {
+    AnsiLove.render(decodeURIComponent(show[1]), function (canvas, sauce) {
+      document.body.appendChild(canvas);
+    }, options);
+  } else {
+    $.ajax({
+      url: "/list",
+      success: function (data) {
+        $(data).each(function (idx, el) {
+          $("body").append("<p><a href=\"/contents/" + encodeURIComponent(el) + "\">" + (el.split("/").pop()) + "</p>");
+        });
+      },
+      error: function () {
+        console.error("Sad times");
+      }
+    });
+  }
+});
 </script>
 </body>
 </html>
