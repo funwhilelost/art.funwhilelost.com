@@ -4,7 +4,7 @@ Built for the Web 1.0 Conference 2015 in Portland, OR.  With the rise of the BBS
 
 ### Demo
 
-![ANSI Art Pack Browser Demo](docs/artpacks.webm.mp4)
+https://github.com/user-attachments/assets/65f25213-7421-4f12-8620-91061093a4a0
 
 ```bash
 npm install
